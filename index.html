@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Load Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        .accordion {
+            background-color: #eee;
+            color: #444;
+            cursor: pointer;
+            padding: 14px;
+            width: 100%;
+            border: none;
+            text-align: left;
+            outline: none;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            border-radius: 5px;
+        }
+
+        .accordion:hover {
+            background-color: #ccc;
+        }
+
+        .panel {
+            padding: 0 18px;
+            display: none;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+
+        /* Base styles for the body */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        /* Navbar styling */
+        .navbar {
+            overflow: hidden;
+            background-color: #333;
+        }
+
+        .navbar a {
+            float: left;
+            font-size: 16px;
+            color: white;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+
+        /* Dropdown container */
+        .dropdown {
+            float: left;
+            overflow: hidden;
+        }
+
+        /* Style for dropdown button */
+        .dropdown .dropbtn {
+            font-size: 16px;  
+            border: none;
+            outline: none;
+            color: white;
+            padding: 14px 16px;
+            background-color: inherit;
+            font-family: inherit;
+            margin: 0;
+        }
+
+        /* Hover effects */
+        .navbar a:hover,
+        .dropdown:hover .dropbtn {
+            background-color: rgb(72, 70, 70);
+        }
+
+        /* Dropdown content (initially hidden) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 200px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        /* Links inside dropdown */
+        .dropdown-content a {
+            float: none;
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+        }
+
+        /* Hover effect on dropdown items */
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Show dropdown on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Scene container (hidden by default) */
+        .scene {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Active scene is visible */
+        .scene.active {
+            display: block;
+        }
+
+        /* -------------------------------------------------------------------------------- */
+        /* Project Euler Number Buttons Design                                              */
+        /* -------------------------------------------------------------------------------- */
+
+        .number-button-completed {
+            padding: 5px 10px;
+            width: 50px;
+            font-size: 14px;
+            color: white;
+            background-color: rgb(0, 125, 30);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+
+        .number-button-completed:hover {
+            background-color: rgb(0, 180, 40);
+            box-shadow: 0 0 25px 3px rgba(0, 115, 25, 0.4);
+        }
+
+        /* -------------------------------------------------------------------------------- */
+
+        .number-button-ongoing {
+            padding: 5px 10px;
+            width: 50px;
+            font-size: 14px;
+            color: white;
+            background-color: rgb(190, 130, 0);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+
+        .number-button-ongoing:hover {
+            background-color: rgb(225, 150, 0);
+            box-shadow: 0 0 25px 3px rgba(190, 130, 0, 0.4);
+        }
+
+        /* -------------------------------------------------------------------------------- */
+
+        .number-button-solved {
+            padding: 5px 10px;
+            width: 50px;
+            font-size: 14px;
+            color: white;
+            background-color: rgb(155, 0, 0);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+
+        .number-button-solved:hover {
+            background-color: rgb(205, 2, 2);
+            box-shadow: 0 0 25px 3px rgba(155, 0, 0, 0.4);
+        }
+
+        /* -------------------------------------------------------------------------------- */
+
+        .number-button-nothing {
+            padding: 5px 10px;
+            width: 50px;
+            font-size: 14px;
+            color: white;
+            background-color: rgb(60, 60, 60);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: monospace;
+        }
+
+        .number-button-nothing:hover {
+            background-color: rgb(110, 110, 110);
+            box-shadow: 0 0 25px 3px rgba(60, 60, 60, 0.4);
+        }
+    </style>
+
+    <!-- Load MathJax for rendering LaTeX -->
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        // Function to switch between scenes
+        function switchScene(sceneId) {
+            document.querySelectorAll('.scene').forEach(scene => {
+                scene.classList.remove('active'); // Hide all scenes
+            });
+            document.getElementById(sceneId).classList.add('active'); // Show selected scene
+        }
+    </script>
+
+    <script>
+        // Accordion toggle logic
+        document.addEventListener("DOMContentLoaded", function () {
+            const acc = document.querySelectorAll(".accordion");
+            acc.forEach(btn => {
+                btn.addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    const panel = this.nextElementSibling;
+                    if (panel.style.display === "block") {
+                        panel.style.display = "none";
+                    } else {
+                        panel.style.display = "block";
+                    }
+                });
+            });
+        });
+    </script>
+
+</head>
+
+<body style="background-color:white;">
+
+<!-- Navigation bar with dropdown -->
+<div class="navbar">
+    <a href="#" onclick="switchScene('Home')">Home</a>
+    <a href="#" onclick="switchScene('Teaching')">Teaching</a>
+    <a href="#" onclick="switchScene('Research')">Research</a>
+    
+    <div class="dropdown">
+        <button class="dropbtn" onclick="switchScene('ProjectEuler')">Project Euler</button>
+        <div class="dropdown-content">
+            <!-- Dropdown items trigger scene switch -->
+            <a href="#" onclick="switchScene('Problem01')">Problem Nr. 01</a>
+            <a href="#" onclick="switchScene('Problem02')">Problem Nr. 02</a>
+            <a href="#" onclick="switchScene('Problem03')">Problem Nr. 03</a>
+            <a href="#" onclick="switchScene('Problem04')">Problem Nr. 04</a>
+            <a href="#" onclick="switchScene('Problem05')">Problem Nr. 05</a>
+            <a href="#" onclick="switchScene('Problem06')">Problem Nr. 06</a>
+            <a href="#" onclick="switchScene('Problem07')">Problem Nr. 07</a>
+            <a href="#" onclick="switchScene('Problem08')">Problem Nr. 08</a>
+            <a href="#" onclick="switchScene('Problem09')">Problem Nr. 09</a>
+            <a href="#" onclick="switchScene('Problem10')">Problem Nr. 10</a>
+        </div>
+    </div> 
+</div>
+
+<!-- Scene: Home -->
+<div id="Home" class="scene active">
+    <h3>Home</h3>
+</div>
+
+<!-- Scene: Teaching -->
+<div id="Teaching" class="scene">
+    <h3>Teaching</h3>
+</div>
+
+<!-- Scene: Research -->
+<div id="Research" class="scene">
+    <h3>Research</h3>
+</div>
+
+<!-- Scene: Project Euler -->
+<div id="ProjectEuler" class="scene">
+    <h1> Project Euler </h1>
+    <p> INSERT LINK AND DESCRIPTION </p>
+    <p> Current Goal: 125</p>
+
+    <!-- problem 01 - 25 -->
+    <p> 
+        <button class = "number-button-completed" onclick = "switchScene('problem-01')"> 1 </button>
+        <button class = "number-button-completed" onclick = "switchScene('problem-02')"> 2 </button>
+        <button class = "number-button-ongoing" onclick = "switchScene('problem-03')"> 3 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-04')"> 4 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-05')"> 5 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-solved" onclick = "switchScene('problem-06')"> 6 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-07')"> 7 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-08')"> 8 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-09')"> 9 </button>
+        <button class = "number-button-solved" onclick = "switchScene('problem-10')"> 10 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 11 </button>
+        <button class = "number-button-nothing"> 12 </button>
+        <button class = "number-button-nothing"> 13 </button>
+        <button class = "number-button-nothing"> 14 </button>
+        <button class = "number-button-nothing"> 15 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 16 </button>
+        <button class = "number-button-nothing"> 17 </button>
+        <button class = "number-button-nothing"> 18 </button>
+        <button class = "number-button-nothing"> 19 </button>
+        <button class = "number-button-nothing"> 20 </button>
+        
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 21 </button>
+        <button class = "number-button-nothing"> 22 </button>
+        <button class = "number-button-nothing"> 23 </button>
+        <button class = "number-button-nothing"> 24 </button>
+        <button class = "number-button-nothing"> 25 </button>
+    </p>
+    <!-- problem 26 - 35 -->
+    <p>
+        <button class = "number-button-nothing"> 26 </button>
+        <button class = "number-button-nothing"> 27 </button>
+        <button class = "number-button-nothing"> 28 </button>
+        <button class = "number-button-nothing"> 29 </button>
+        <button class = "number-button-nothing"> 30 </button>
+        
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 31 </button>
+        <button class = "number-button-nothing"> 32 </button>
+        <button class = "number-button-nothing"> 33 </button>
+        <button class = "number-button-nothing"> 34 </button>
+        <button class = "number-button-nothing"> 35 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 36 </button>
+        <button class = "number-button-nothing"> 37 </button>
+        <button class = "number-button-nothing"> 38 </button>
+        <button class = "number-button-nothing"> 39 </button>
+        <button class = "number-button-nothing"> 40 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 41 </button>
+        <button class = "number-button-nothing"> 42 </button>
+        <button class = "number-button-nothing"> 43 </button>
+        <button class = "number-button-nothing"> 44 </button>
+        <button class = "number-button-nothing"> 45 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 46 </button>
+        <button class = "number-button-nothing"> 47 </button>
+        <button class = "number-button-nothing"> 48 </button>
+        <button class = "number-button-nothing"> 49 </button>
+        <button class = "number-button-nothing"> 50 </button>
+    </p>
+    <!-- problem 51 - 75 -->
+    <p>
+        <button class = "number-button-nothing"> 51 </button>
+        <button class = "number-button-nothing"> 52 </button>
+        <button class = "number-button-nothing"> 53 </button>
+        <button class = "number-button-nothing"> 54 </button>
+        <button class = "number-button-nothing"> 55 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 56 </button>
+        <button class = "number-button-nothing"> 57 </button>
+        <button class = "number-button-nothing"> 58 </button>
+        <button class = "number-button-nothing"> 59 </button>
+        <button class = "number-button-nothing"> 60 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 61 </button>
+        <button class = "number-button-nothing"> 62 </button>
+        <button class = "number-button-nothing"> 63 </button>
+        <button class = "number-button-nothing"> 64 </button>
+        <button class = "number-button-nothing"> 65 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 66 </button>
+        <button class = "number-button-nothing"> 67 </button>
+        <button class = "number-button-nothing"> 68 </button>
+        <button class = "number-button-nothing"> 69 </button>
+        <button class = "number-button-nothing"> 70 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 71 </button>
+        <button class = "number-button-nothing"> 72 </button>
+        <button class = "number-button-nothing"> 73 </button>
+        <button class = "number-button-nothing"> 74 </button>
+        <button class = "number-button-nothing"> 75 </button>
+    </p>
+    <!-- problem 76 - 100 -->
+    <p>
+        <button class = "number-button-nothing"> 76 </button>
+        <button class = "number-button-nothing"> 77 </button>
+        <button class = "number-button-nothing"> 78 </button>
+        <button class = "number-button-nothing"> 79 </button>
+        <button class = "number-button-nothing"> 80 </button>
+        
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 81 </button>
+        <button class = "number-button-nothing"> 82 </button>
+        <button class = "number-button-nothing"> 83 </button>
+        <button class = "number-button-nothing"> 84 </button>
+        <button class = "number-button-nothing"> 85 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 86 </button>
+        <button class = "number-button-nothing"> 87 </button>
+        <button class = "number-button-nothing"> 88 </button>
+        <button class = "number-button-nothing"> 89 </button>
+        <button class = "number-button-nothing"> 90 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 91 </button>
+        <button class = "number-button-nothing"> 92 </button>
+        <button class = "number-button-nothing"> 93 </button>
+        <button class = "number-button-nothing"> 94 </button>
+        <button class = "number-button-nothing"> 95 </button>
+
+        &nbsp &nbsp
+
+        <button class = "number-button-nothing"> 96 </button>
+        <button class = "number-button-nothing"> 97 </button>
+        <button class = "number-button-nothing"> 98 </button>
+        <button class = "number-button-nothing"> 99 </button>
+        <button class = "number-button-nothing"> 100 </button>
+    </p>
+</div>
+
+<!---------------------------------------------------------------------------------------------------->
+
+<!-- COMPLETED SCENE: Project Euler - Problem 01 -->
+<div id = "problem-01" class = "scene">
+    <h2> Problem Nr. 01: Multiples of 3 or 5</h2>
+    <p> 
+        If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. 
+        The sum of these multiples is 23.
+     </p>
+    <p> 
+        <strong> Task: </strong> Find the sum of all multiples of 3 or 5 below 1000. 
+    </p>
+
+    <!-- Accordion Button: Solution Julia -->
+    <button class = "accordion"> Solution with Julia Code </button>
+    <div class = "panel">
+        <p> Running the code line \(\hspace{0.035em}\) <code> multiples_of_three_or_five_below(1000)
+            </code> which evaluates the very simple function below yields the solution <strong> 
+            233168 </strong> in about \(10^{-5}\) seconds.
+        </p>
+
+        <pre><code>
+function multiples_of_three_or_five_below(n::Int64)::Int64
+    N = 1:(n - 1)
+    return sum(N[mod.(N, 3) .== 0 .|| mod.(N, 5) .== 0])
+end
+        </code></pre>
+    </div>
+</div>
+
+<!---------------------------------------------------------------------------------------------------->
+
+<!-- Scene: Project Euler - Problem 02 -->
+<div id = "problem-02" class = "scene">
+    <h2> Problem Nr. 02: Fibonacci Numbers</h2>
+    <p> 
+        Each new term in the Fibonacci sequence is generated by adding the previous two terms. By 
+        starting with 1 and 2, the first ten terms will be 1, 2, 3, 5, 8, 13, 21, 34, 55 and 89.
+    </p>
+    <p> 
+        <strong>Task:</strong> Find the sum of the even-valued terms in the Fibonacci sequence which 
+        do not exceed four million \((4 \cdot 10^{\hspace{0.05em}6}\hspace{0.05em})\).
+    </p>
+
+    <!-- Accordion Button: Solution Julia -->
+    <button class = "accordion"> Solution with Julia Code </button>
+    <div class = "panel">
+        <p> 
+            We can solve this problem by succesively extending a list of Fibonacci numbers, starting
+            with \(\hspace{0.035em}\) <code> fibonacci = [1, 2] </code> and increasing the sum of 
+            even-valued terms \(\hspace{0.025em}\) <code> s </code> if the current term itself is even,
+            while staying below some fixed value \(\hspace{0.025em}\) <code> s </code>. Running the 
+            code line \(\hspace{0.035em}\) <code> sum_of_even_fibonacci_terms_below(4000000) </code> 
+            then yields the solution <strong> 4613732 </strong> in about \(10^{-4}\) seconds.
+        </p>
+
+        <pre><code>
+function sum_of_even_fibonacci_terms_below(n::Int64)::Int64
+    fibonacci = [1, 2]
+    s = 2
+        
+    c = fibonacci[end - 1] + fibonacci[end]
+    while c < n
+        push!(fibonacci, c)
+        mod(c, 2) == 0 && (s += c)
+        c += fibonacci[end - 1]
+    end
+        
+    return s
+end
+        </code></pre>
+    </div>
+</div>
+
+<!---------------------------------------------------------------------------------------------------->
+
+<!-- Scene: Project Euler - Problem 03 -->
+<div id = "problem-03" class = "scene">
+    <h2> Problem Nr. 03: Largest Prime Factor</h2>
+    <p> The prime factors of 13195 are 5, 7, 13 and 29. </p>
+    <p><strong>Task: </strong> Find the largest prime factor of the number 600851475143. </p>
+
+    <!-- Accordion Button: Solution Julia -->
+    <button class = "accordion"> Solution with Julia Code </button>
+    <div class = "panel">
+        <p> </p>
+
+        <pre><code>
+function c = largest_prime_factor(n)
+    c = smallest_prime_factor(n);
+    if c == n
+        return
+    else
+        c = largest_prime_factor(n / c);
+    end
+end
+        
+function c = smallest_prime_factor(n)
+    c = -1;
+        
+    for i = 2:floor(sqrt(n))
+        if mod(n, i) == 0
+            c = i;
+            return
+        end
+    end
+        
+    if c == -1
+        c = n;
+    end
+end
+        </code></pre>
+    </div>
+</div>
+
+<!-- Scene: Project Euler - Problem 04 -->
+<div id = "problem-04" class = "scene">
+    <h2> Problem Nr. 04: Largest Palindrome Product </h2>
+    <p><strong>Task: </strong></p>
+
+    <!-- Accordion Button -->
+    <button class = "accordion"> Solution </button>
+    <div class = "panel">
+        <p> <strong> </strong></p>
+        
+        <pre><code>
+
+        </code></pre>
+    </div>
+</div>
+
+<!-- Scene: Project Euler - Problem 05 -->
+<div id = "problem-05" class = "scene">
+    <h2> Problem Nr. 05: Smallest Multiple </h2>
+    <p><strong>Task: </strong></p>
+
+    <!-- Accordion Button -->
+    <button class = "accordion"> Solution </button>
+    <div class = "panel">
+        <p> <strong> </strong></p>
+        
+        <pre><code>
+
+        </code></pre>
+    </div>
+</div>
+
+<!-- Scene: Project Euler - Problem 06 -->
+<div id = "problem-06" class = "scene">
+    <h2> Problem Nr. 06: Sum Square Difference</h2>
+    <p><strong>Task: </strong></p>
+
+    <!-- Accordion Button -->
+    <button class = "accordion"> Solution </button>
+    <div class = "panel">
+        <p> <strong> </strong></p>
+        
+        <pre><code>
+
+        </code></pre>
+    </div>
+</div>
+
+<!-- Scene: Project Euler - Problem 07 -->
+<div id = "problem-07" class = "scene">
+    <h2> Problem Nr. 07: 10 001st Prime</h2>
+    <p><strong>Task: </strong></p>
+
+    <!-- Accordion Button -->
+    <button class = "accordion"> Solution </button>
+    <div class = "panel">
+        <p> <strong> </strong></p>
+        
+        <pre><code>
+
+        </code></pre>
+    </div>
+</div>
+
+</body>
+</html>
